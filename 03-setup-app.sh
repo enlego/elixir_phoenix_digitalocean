@@ -31,11 +31,6 @@ asdf global erlang 27.3.3
 asdf global elixir 1.18.3
 asdf global nodejs 20.12.2
 
-# Proyecto base y GSAP
-mkdir -p ~/app && cd ~/app
-npm init -y
-npm install gsap
-
 # Configurar PostgreSQL
 sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
 sudo -u postgres psql -c "ALTER ROLE $DB_USER CREATEDB;"
