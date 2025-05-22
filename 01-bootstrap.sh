@@ -1,17 +1,20 @@
 #!/bin/bash
+set -e
 
-USERNAME=<YOUR_USERNAME>
+# Prompt for username
+read -p "Enter new username: " NEW_USER
+adduser "$NEW_USER"
+usermod -aG sudo "$NEW_USER"
 
-# Crear nuevo usuario sin contraseña y agregar a sudoers
-adduser --disabled-password --gecos "" $USERNAME
-usermod -aG sudo $USERNAME
+# Copy SSH keys
+mkdir -p /home/"$NEW_USER"/.ssh
+cp /root/.ssh/authorized_keys /home/"$NEW_USER"/.ssh/
+chown -R "$NEW_USER":"$NEW_USER" /home/"$NEW_USER"/.ssh
+chmod 700 /home/"$NEW_USER"/.ssh
+chmod 600 /home/"$NEW_USER"/.ssh/authorized_keys
 
-# Copiar llaves SSH desde root
-mkdir -p /home/$USERNAME/.ssh
-cp /root/.ssh/authorized_keys /home/$USERNAME/.ssh/
-chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh
-chmod 700 /home/$USERNAME/.ssh
-chmod 600 /home/$USERNAME/.ssh/authorized_keys
+# Prompt to set password
+echo "Now set a password for $NEW_USER:"
+passwd "$NEW_USER"
 
-echo "✅ Usuario $USERNAME creado. Verifica que puedes hacer login vía SSH antes de continuar."
-echo "ℹ️ Ejecuta: ssh $USERNAME@<SERVER_IP>"
+echo "✅ User $NEW_USER created. Validate SSH login before continuing."
