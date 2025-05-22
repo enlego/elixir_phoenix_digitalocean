@@ -15,12 +15,14 @@ Executed as `root` after spinning up the server.
 - Creates a new non-root user (`<YOUR_USERNAME>`)
 - Adds it to the `sudo` group
 - Copies SSH authorized keys from root
-- Prompts you to validate SSH access
+- **Prompts to set a password** for the new user (required to use `sudo`)
+- Prompts you to validate SSH access by logging in as the new user
 
 ### ✅ `02-secure.sh`
 Executed **after** validating login with the new user.
-- Disables root login over SSH
-- Enables the UFW firewall (OpenSSH + NGINX)
+- Disables root login over SSH (edits `sshd_config` and restarts `ssh`)
+- Enables the UFW firewall (allows OpenSSH and NGINX if installed)
+- Ignores the NGINX rule gracefully if it doesn't exist yet
 
 ### ✅ `03-setup-app.sh`
 Executed as the **new user** (`<YOUR_USERNAME>`).
@@ -32,29 +34,32 @@ Executed as the **new user** (`<YOUR_USERNAME>`).
   - GSAP via npm (optional frontend lib)
 - Creates your app folder at `~/apps/<YOUR_APP_NAME>`
 
-Each script corresponds to steps outlined in the accompanying markdown documentation:
-
-- [`ubuntu-server-setup.md`](./ubuntu-server-setup.md): Manual instructions for setting up a new server
-- [`elixir-deploy-from-github-actions.md`](./elixir-deploy-from-github-actions.md): Steps to configure GitHub Actions for deploying Phoenix apps to the server
-
 ---
 
 ## ⚠️ Security Notes
 
 - Never disable root login before validating SSH access with your new user.
 - Environment variables like `DB_PASSWORD` are placeholders—consider safer secret management tools for production.
-- After running these scripts, configure `systemd` and SSL (e.g. with Certbot) manually.
 
 ---
 
 ## ✅ Final Checklist
 
-- [ ] Confirm you can login as `<YOUR_USERNAME>`
-- [ ] Run `02-secure.sh` only after SSH validation
-- [ ] Run `03-setup-app.sh` as the new user
-- [ ] Configure SSL with Certbot (not included here)
-- [ ] Configure your Phoenix app service with `systemd`
-- [ ] Make sure image/video/static assets are not excluded from Git
+- [x] Confirm you can login as `<YOUR_USERNAME>`
+- [x] Set a password for the new user to enable `sudo`
+- [x] Run `02-secure.sh` only after SSH validation
+- [x] Run `03-setup-app.sh` as the new user
+- [x] Configure SSL with Certbot (not included here)
+- [x] Configure your Phoenix app service with `systemd`
+
+---
+
+## 📚 Extended Docs
+
+This repo also includes the following detailed guides:
+
+- [`ubuntu-server-setup.md`](./ubuntu-server-setup.md) — full manual setup of an Ubuntu server
+- [`elixir-deploy-from-github-actions.md`](./elixir-deploy-from-github-actions.md) — deploy a Phoenix release from GitHub Actions to your server
 
 ---
 
@@ -79,12 +84,3 @@ Feel free to fork and adapt to your stack. PRs welcome!
 
 ## 📜 License
 MIT
-
-
----
-
-## ✨ Créditos
-
-Este setup fue documentado para facilitar el despliegue continuo de proyectos Phoenix en servidores autogestionados, manteniendo buenas prácticas de seguridad y reproducibilidad.
-
----
