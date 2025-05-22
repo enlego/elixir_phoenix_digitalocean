@@ -6,57 +6,80 @@ Este repositorio contiene la documentación y los scripts necesarios para provis
 Con este [Link de Referidos](https://m.do.co/c/a8f2bbcf381e) puedes levantar una máquina en DigitalOcean. Te dan USD 200 de crédito.
 ---
 
-## 📘 Documentos incluidos
+## 📁 Scripts Overview
 
-### 1. [`ubuntu_elixir_setup.md`](./ubuntu_elixir_setup.md)
-Guía detallada para preparar una máquina Ubuntu desde cero para producción, incluyendo:
+This repository is organized into **three setup scripts**, to be run in order:
 
-- Creación de usuario con permisos `sudo` y llaves SSH
-- Instalación de Elixir `1.18.3` con OTP `27` usando `asdf`
-- Instalación y configuración segura de PostgreSQL
-- Instalación de Node.js y dependencias frontend (como GSAP)
-- Configuración básica de firewall con UFW
-- Setup de NGINX como reverse proxy
-- Recomendaciones adicionales para hardening del servidor
+### ✅ `01-bootstrap.sh`
+Executed as `root` after spinning up the server.
+- Creates a new non-root user (`<YOUR_USERNAME>`)
+- Adds it to the `sudo` group
+- Copies SSH authorized keys from root
+- Prompts you to validate SSH access
 
-> ✅ Ideal para levantar una nueva instancia de servidor lista para producción.
+### ✅ `02-secure.sh`
+Executed **after** validating login with the new user.
+- Disables root login over SSH
+- Enables the UFW firewall (OpenSSH + NGINX)
 
----
+### ✅ `03-setup-app.sh`
+Executed as the **new user** (`<YOUR_USERNAME>`).
+- Installs:
+  - Zsh + Oh-My-Zsh
+  - ASDF with Erlang, Elixir, Node.js
+  - PostgreSQL (configured with custom user/password)
+  - NGINX
+  - GSAP via npm (optional frontend lib)
+- Creates your app folder at `~/apps/<YOUR_APP_NAME>`
 
-### 2. [`phoenix_deploy_workflow.yml`](./phoenix_deploy_workflow.yml)
-Archivo de GitHub Actions para hacer deploy automatizado desde `main`:
+Each script corresponds to steps outlined in the accompanying markdown documentation:
 
-- Construcción del release con `mix release`
-- Digest de assets con `phx.digest`
-- Transferencia vía SSH y despliegue controlado con `systemd`
-- Compatibilidad con NGINX como proxy inverso
-
-> 🔁 Reutilizable para múltiples proyectos Phoenix.
-
----
-
-## 🚀 Cómo usar este repositorio
-
-1. Sigue las instrucciones de `ubuntu_elixir_setup.md` en tu nueva instancia Ubuntu
-2. Configura tu proyecto Phoenix como `release` y usa el workflow `phoenix_deploy_workflow.yml`
-3. Ajusta los placeholders (`<USERNAME>`, `<APP_NAME>`, `<DB_USER>`, etc.) a tus necesidades
-4. Opcional: configura Certbot para HTTPS (no incluido aquí)
+- [`ubuntu-server-setup.md`](./ubuntu-server-setup.md): Manual instructions for setting up a new server
+- [`elixir-deploy-from-github-actions.md`](./elixir-deploy-from-github-actions.md): Steps to configure GitHub Actions for deploying Phoenix apps to the server
 
 ---
 
-## 📦 Requisitos
+## ⚠️ Security Notes
 
-- Ubuntu 22.04 o superior
-- Acceso SSH al servidor
-- Un proyecto Phoenix configurado para releases
+- Never disable root login before validating SSH access with your new user.
+- Environment variables like `DB_PASSWORD` are placeholders—consider safer secret management tools for production.
+- After running these scripts, configure `systemd` and SSL (e.g. with Certbot) manually.
 
 ---
 
-## 🛡️ Seguridad recomendada
+## ✅ Final Checklist
 
-- Deshabilita acceso SSH a `root`
-- Usa claves SSH fuertes y desactiva contraseñas
-- Habilita UFW con puertos mínimos necesarios (`22`, `80`, `443`)
+- [ ] Confirm you can login as `<YOUR_USERNAME>`
+- [ ] Run `02-secure.sh` only after SSH validation
+- [ ] Run `03-setup-app.sh` as the new user
+- [ ] Configure SSL with Certbot (not included here)
+- [ ] Configure your Phoenix app service with `systemd`
+- [ ] Make sure image/video/static assets are not excluded from Git
+
+---
+
+## 🧠 Example Usage
+```bash
+# As root:
+sudo bash 01-bootstrap.sh
+
+# Login as the new user, then:
+sudo bash 02-secure.sh
+
+# Login again as the user:
+bash 03-setup-app.sh
+```
+
+---
+
+## 🤝 Contributions
+Feel free to fork and adapt to your stack. PRs welcome!
+
+---
+
+## 📜 License
+MIT
+
 
 ---
 
