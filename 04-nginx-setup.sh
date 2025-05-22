@@ -16,7 +16,7 @@ sudo apt install -y nginx
 sudo ufw allow 'Nginx HTTP'
 
 # 📄 Create NGINX config for the domain
-sudo tee "$NGINX_SITE" > /dev/null <<EOF
+sudo tee "$NGINX_SITE" > /dev/null <<'EOF'
 # Redirección http:// → https://
 server {
         listen 80;
